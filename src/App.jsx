@@ -1,41 +1,50 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import './App.css'
 
-import Cell from './Cell';
-const App = () => {
-  const [tiles, setTiles] = useState([])
+import Stack from './Stack';
 
-  const updateTiles = () => {
-    if(tiles.length === 0 ) {
-      initializeTilesWith2RandomTiles();
+const App = () => {
+  const [grid, setGrid] = useState([[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]])
+  // const [grid, setGrid] = useState([[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16]])
+
+  const updateGrid = () => {
+
+    
+    //if grid is empty then initialize two random tiles with 2
+    
+    // reducing the grid to a single sum
+    let sumOfAllTiles = grid.map((stack)=> stack.reduce((acc, tile) => acc + tile)).reduce((acc, number) => acc + number)
+    
+    if(sumOfAllTiles === 0 ){
+      /* Initializing the grid with 2 random tiles with value of 2*/
+          let randpos1x = Math.floor(Math.random() * 4);
+          let randpos1y = Math.floor(Math.random() * 4);
+          let randpos2x = Math.floor(Math.random() * 4);
+          let randpos2y = Math.floor(Math.random() * 4);
+          let tmp = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]];
+          tmp[randpos1x][randpos1y] = 2
+          tmp[randpos2x][randpos2y] = 2
+          setGrid(tmp);
+          console.log(grid);
     }
-    else {
-      setTiles(tiles);
+    else{
+      setGrid(grid);
+      console.log(grid);
     }
   }
 
   useEffect(() => {
     console.log('I run on first render');
-    updateTiles();
+    updateGrid();
   },[]);
 
-  const initializeTilesWith2RandomTiles = () => {
-    
-      let randpos1 = Math.floor(Math.random() * 4);
-      let randpos2 = Math.floor(Math.random() * 4);
-      // console.log(randpos1)
-      // console.log(randpos2)
-      let tmp = [0,0,0,0];
-      tmp[randpos1] = 2
-      tmp[randpos2] = 2
-      setTiles(tmp);
-
-  }
 
   document.onkeydown = (e) => {
     handle(e.code)
   }
 
+
+  // Now I need to update the handle function to incorporate the key up down and the whole 2D sheninigans
   const handle = (key) => {
     // e.preventDefault();
 
@@ -45,7 +54,6 @@ const App = () => {
 
 
     let populatedTiles = tempTiles.filter(t => t > 0)
-    console.log('length', populatedTiles.length);
 
     for(let i = 0; i < 4; i++){
       if(i < populatedTiles.length){
@@ -105,18 +113,19 @@ const App = () => {
   }
   
   
-    
+    // Now lets try to make this into 4 by 4 grid rather than a single stack
+    // for that I need to use a 2D array for the tiles state
+    // maybe some basic refactoring is needed for the naming of the classes, like grid should be renamed to board. I will do that right away
+    // The next childrens of the board must be called Stack to represent the rows and should contain 4 cells within them.
 
   return (
     <div>
-      <div className="grid">
-        <Cell tile={tiles[0]} id="0"></Cell>
-        <Cell tile={tiles[1]} id="1"></Cell>
-        <Cell tile={tiles[2]} id="2"></Cell>
-        <Cell tile={tiles[3]} id="3"></Cell>
-      </div>
-      {/* <button onClick={handleLeft}>left</button>
-      <button onClick={handleRight}>right</button> */}
+      <div className="board">
+        <Stack stack={grid[0]}></Stack>
+        <Stack stack={grid[1]}></Stack>
+        <Stack stack={grid[2]}></Stack>
+        <Stack stack={grid[3]}></Stack>
+       </div>
     </div>
   )
 }
