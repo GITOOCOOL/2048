@@ -5,7 +5,6 @@ import Stack from './Stack';
 
 const App = () => {
   const [grid, setGrid] = useState([[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]])
-  // const [grid, setGrid] = useState([[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16]])
 
   const updateGrid = () => {
 
@@ -25,16 +24,14 @@ const App = () => {
           tmp[randpos1x][randpos1y] = 2
           tmp[randpos2x][randpos2y] = 2
           setGrid(tmp);
-          // console.log(grid);
+
     }
     else{
       setGrid(grid);
-      console.log(grid);
     }
   }
 
   useEffect(() => {
-    // console.log('I run on first render');
     updateGrid();
   },[]);
 
@@ -49,29 +46,34 @@ const App = () => {
   //
 
 
+
+
   // Now I need to update the handle function to incorporate the key up down and the whole 2D sheninigans
   const handle = (key) => {
-    // e.preventDefault();
-
-    // thankfully, just reversing the tiles array works 
-    // let tempTiles = key === 'ArrowLeft'? tiles:tiles.reverse();
-    // maybe just iterate over the tiles and push only the populated tiles to a temporary array then at last just push 0's at the end to make it a 1by4 array that will shift the array easily
-
     //Rather than using the condition for just left and right, I will use a switch case statement for each key presses
 
     switch (key) {
       case 'ArrowLeft':
       {
-          let generatingStack = grid.map((stack)=>{
-            if(stack.reduce((acc, stack)=> ))
-          })
-          console.log(key);
-          let tempGrid = grid
-          // console.log(tempGrid);
+        // trying to make an array of stacks with at least one empty tile
+          let stacksWithAtLeastOneEmptyTile = [];
+          for(let i = 0; i < grid.length; i++){
+
+            if(grid[i].reduce((acc, tile)=> acc * tile) === 0){ //if there is even a single 0 tile in the stack, then the output of the reducer is 0, so that we can know that there is at least one empty tile in the stack
+              stacksWithAtLeastOneEmptyTile.push(i)
+            }
+
+          }
+          let randomStackToGenerateNewTile = stacksWithAtLeastOneEmptyTile[Math.floor(Math.random() * stacksWithAtLeastOneEmptyTile.length)]
+          console.log('stackWithAtLeastOneEmptyTile: ', stacksWithAtLeastOneEmptyTile)
+          console.log('randomStackToGenerate: ', randomStackToGenerateNewTile)
+
+
+          let tempGrid = grid.map(stack => stack.map(tile=> tile))
           tempGrid = tempGrid.map((stack,index=0)=> {
               let tempStack = stack
-              // console.log(tempStack);
-              let populatedTiles = tempStack.filter(t => t>0)
+              let populatedTiles = tempStack.filter(tile => tile>0)
+              console.log(populatedTiles);
               
               for(let i = 0; i < 4; i++){
                 if(i < populatedTiles.length){
@@ -106,25 +108,27 @@ const App = () => {
               }
 
               // put a logic to generate the  new tiles in the selected stacks only
-              if(index in generatingStack){
-                console.log('asdfdsafa', index);
-              }
+              // if(index in generatingStack){
+              //   console.log('asdfdsafa', index);
+              // }
                 // Generating new 2 numbered tiles logic
                 // generateNew2()
                 //find empty cells
-                let emptyCells = [];
-                for(let i = 0; i <shiftedStack.length; i++){
-                  if(shiftedStack[i] === 0){
-                    emptyCells.push(i)
-                  }
-                //randomly select an empty cell and populate it with 2
-                let selectedEmptyCell = Math.floor(Math.random() * emptyCells.length);
-                shiftedStack[emptyCells[selectedEmptyCell]] = 2;
+                if(index === randomStackToGenerateNewTile){
+                  let emptyCells = [];
+                    for(let i = 0; i <shiftedStack.length; i++){
+                      if(shiftedStack[i] === 0){
+                        emptyCells.push(i)
+                      }
+                    }
+                    //randomly select an empty cell and populate it with 2
+                    let selectedEmptyCell = Math.floor(Math.random() * emptyCells.length);
+                    shiftedStack[emptyCells[selectedEmptyCell]] = 2;
               }
               
               // also need to reverse at the end to get the correct tiles
               // setTiles(key==='ArrowLeft'?shiftedStack.map((t)=>t):shiftedStack.map(t => t).reverse())
-              console.log('asdf: ',shiftedStack);
+              // console.log('asdf: ',shiftedStack);
               index++;
               return shiftedStack
           })
