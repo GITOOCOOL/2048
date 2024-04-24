@@ -1,3 +1,6 @@
+//Just got an idea of how to implement tetrominoes rotation when I will start builiding Tetris. The same algorithm I used here for rotating the grid can be used to rotate the tetrominoes. And also the tetrominoes can be made out of preFilled grids. Maybe I will branch out this code and start tweaking with the grid to make some tetrominoes simulation.
+
+
 /*ISSUES,BUGS, AND FEATURES UPDATES IDEAS
 
 Issues:
@@ -29,8 +32,8 @@ import './App.css'
 import Stack from './Stack';
 
 const App = () => {
-  // const [grid, setGrid] = useState([[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]])
-  const [grid, setGrid] = useState([[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16]])
+  const [grid, setGrid] = useState([[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]])
+  // const [grid, setGrid] = useState([[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16]])
   const updateGrid = () => {
 
     
