@@ -1,11 +1,36 @@
+/*ISSUES,BUGS, AND FEATURES UPDATES IDEAS
+
+Issues:
+1. At this stage, while playing the game, I found one issue:
+  If the tiles are in configuration like: 4 4 2 0, when I press left, the next configuration will be 8 0 2 0, but that is not desired. The next configuration should have been 8 2 0 0.
+  I know where that issue is coming from, but I need to figure out something to mitigate this. In case I forget later, the issue stems from the part after I merge two tiles. In the previous code, I had reshifted the tiles again after the merge, which was correct thing to do. But when I was cleaning the code up, I just deleted that reshifting part thinking it was not necessay.
+2. Still to be done is the colors of the higher number tiles
+
+BUGS:
+YET TO BE FOUND
+
+FEATURES UPDATES IDEAS:
+
+1. undo feature
+2. UI enhancements like, score, buttons like new game, undo, etc.
+3. High Score database
+4. User profile (maybe I am being too ambitious but if I can I can try to include google auth and other auth apis)
+5. Share your score screenshot button
+6. Responsive UI
+*/
+
+
+
+// Let's tackle the issue 1. right now
+
 import { useEffect, useState } from 'react';
 import './App.css'
 
 import Stack from './Stack';
 
 const App = () => {
-  const [grid, setGrid] = useState([[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]])
-  // const [grid, setGrid] = useState([[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16]])
+  // const [grid, setGrid] = useState([[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]])
+  const [grid, setGrid] = useState([[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16]])
   const updateGrid = () => {
 
     
@@ -44,10 +69,35 @@ const App = () => {
     let temp1 = gridToRotate.map(stack => stack.map(tile => tile))
     let temp2 = gridToRotate.map(stack => stack.map(tile => tile))
 
-    console.log('original:', grid )
+    console.log('original:', gridToRotate.flat().toString() )
     for(let i=0; i<4; i++){
       for(let j=0; j<4; j++){
         temp1[i][j] = temp2[j][i];
+      }
+    }
+    console.log('rotatedUp:', temp1.flat().toString() )
+    return temp1;
+  }
+  const rotateGridDown = (gridToRotate) => {
+    let temp1 = gridToRotate.map(stack => stack.map(tile => tile))
+    let temp2 = grid.map(stack => stack.map(tile => tile))
+
+    console.log('original:', grid.flat().toString() )
+    for(let i=0; i<4; i++){
+      for(let j=0; j<4; j++){
+        temp1[i][j] = temp2[3-j][i];
+      }
+    }
+    return temp1;
+  }
+  const rotateGridDownInverse = (gridToRotate) => {
+    let temp1 = gridToRotate.map(stack => stack.map(tile => tile))
+    let temp2 = gridToRotate.map(stack => stack.map(tile => tile))
+
+    console.log('original:', grid )
+    for(let i=0; i<4; i++){
+      for(let j=0; j<4; j++){
+        temp1[i][j] = temp2[j][3-i];
       }
     }
     return temp1;
@@ -102,6 +152,9 @@ const App = () => {
                     returnStack[i+1] = 0;
                   }
                 }
+
+                // Issue 1. which I mentioned in the documentation is solved simply by shifting the stack after the merge operation, which eliminates the holes in the stack which appear after the merge.
+                returnStack = getShiftedStack(returnStack);
                 return returnStack;
               }
 
@@ -235,6 +288,7 @@ const App = () => {
                     returnStack[i+1] = 0;
                   }
                 }
+                returnStack = getShiftedStack(returnStack);
                 return returnStack;
               }
 
@@ -316,7 +370,11 @@ const App = () => {
 
         // For the ArrowDown Case, maybe just making a similar rotateGridDown Function will do the trick
     
-          let rotatedGrid = rotateGridUp(grid);
+          let rotatedGrid = rotateGridDownInverse(grid);
+          setGrid(rotatedGrid);
+
+
+          break;
           let rotatedGridCopy = rotatedGrid.map((stack)=> {
               const getShiftedStack = (stack) => {
                 let returnStack = stack.filter(tile => tile>0)
@@ -339,6 +397,7 @@ const App = () => {
                     returnStack[i+1] = 0;
                   }
                 }
+                returnStack = getShiftedStack(returnStack);
                 return returnStack;
               }
 
@@ -449,6 +508,152 @@ const App = () => {
 
     }
     break;
+
+    case 'ArrowDown':
+      {
+        // In this case I use the rotateGripUp function to rotate the grid up and do the shifting, and at the end I rerotate the grid using the same function, check if it is different from the original grid(that is to see if any shifts or moves happened), in which case I generate a new tile2
+
+        // For the ArrowDown Case, maybe just making a similar rotateGridDown Function will do the trick
+    
+          let rotatedGrid = rotateGridDown(grid);
+          // rotatedGrid = rotateGridDownInverse(grid);
+          console.log(rotatedGrid);
+          setGrid(rotatedGrid);
+
+          break;
+          let rotatedGridCopy = rotatedGrid.map((stack)=> {
+              const getShiftedStack = (stack) => {
+                let returnStack = stack.filter(tile => tile>0)
+                for(let i = 0; i < 4; i++){
+                  if(i < returnStack.length){
+                    continue; //
+                  }
+                  else {
+                    returnStack.push(0)//by pushing the 0s at the end we basically completed the shift
+                  }
+                }
+                return returnStack;
+              } 
+              const getMergedStack = (stack) => {
+                let returnStack = stack;
+                // logic to merge two tiles with the same values
+                for(let i = 0; i < returnStack.length-1; i++) {// we only iterate over the first 3 tiles to prevent the loop getting out of the array bounds
+                  if(returnStack[i+1] === returnStack[i]) {
+                    returnStack[i] *= 2
+                    returnStack[i+1] = 0;
+                  }
+                }
+                return returnStack;
+              }
+
+              let shiftedStack = getShiftedStack(stack);
+              
+
+              let mergedStack = getMergedStack(shiftedStack)
+              /*
+              // after we merged the tiles, we need to shift the tiles again
+              // so we first filter the populated tiles again and push 0s at the end to make the shift logic happen again
+              // maybe after this I should try to extract the shifting function to make the code more modular
+              // shiftedStack = shiftedStack.filter(t => t > 0)
+              
+              // for(let i = 0; i < 4; i++){
+              //   if(i < shiftedStack.length){
+              //     continue; //
+              //   }
+              //   else {
+              //     shiftedStack.push(0)
+              //   }
+              // }
+
+              // put a logic to generate the  new tiles in the selected stacks only
+              // if(index in generatingStack){
+              //   console.log('asdfdsafa', index);
+              // }
+                // Generating new 2 numbered tiles logic
+                // generateNew2()
+                //find empty cells
+              //   if(check){
+              //     if(index === randomStackToGenerateNewTile){
+              //       let emptyCells = [];
+              //         for(let i = 0; i <shiftedStack.length; i++){
+              //           if(shiftedStack[i] === 0){
+              //             emptyCells.push(i)
+              //           }
+              //         }
+              //         //randomly select an empty cell and populate it with 2
+              //         let selectedEmptyCell = Math.floor(Math.random() * emptyCells.length);
+              //         shiftedStack[emptyCells[selectedEmptyCell]] = 2;
+              //   }
+              //   }
+              
+              // // also need to reverse at the end to get the correct tiles
+              // // setTiles(key==='ArrowLeft'?shiftedStack.map((t)=>t):shiftedStack.map(t => t).reverse())
+              // // console.log('asdf: ',shiftedStack);
+              // index++;
+              */
+              // return mergedStack;
+              return mergedStack;
+          })
+         
+
+          /*
+          // generating new tile 2 logic
+          // here check if the new updated grid has been changed or not from the original
+
+
+          // Now to check if the grid was moved(that means modified by either a shift or merge happening) we can simply compare the original grid to the new gridCopy that went through the algorithm to move the stacks
+          // And in the case the grid was moved, we have to generate a new tile2 at a random empty slot which will be generated by the getRandomStackToGenerateNewTile function
+
+          // In order to check if the grid and gridCopy are same or not, we can simply flatten them and compare the resulting arrays.toString(), here we have to use the toString() because in JS if we compare the two arrays using equal operator, it will return always return false due to the array names in JS are actually the references to the arrays in memory
+          */
+
+          let wasGridMoved = false;
+          
+          
+          let rerotatedGrid = rotateGridDownInverse(rotatedGridCopy)
+          
+          console.log('rotated grid :', rotatedGridCopy.flat().toString());
+          console.log('original grid: ',grid.flat().toString());
+          console.log('rerotated grid :', rerotatedGrid.flat().toString());
+
+          if((grid.flat().toString() === rerotatedGrid.flat().toString()) === false){//if the original grid and gridCopy are different that means the grid has been moved
+            wasGridMoved = true;
+          }
+          else{
+            wasGridMoved = false;
+          }
+
+
+          //Now in case the grid was moved, we need to generate a new tile2 at a random empty slot
+          if(wasGridMoved){
+            let arrayOfEmptySlotIndices = [];
+            for(let i = 0; i < 4; i++){
+              for(let j = 0; j < 4; j++){
+                if(rotatedGridCopy[i][j] === 0){
+                  arrayOfEmptySlotIndices.push(i.toString() + j.toString()) 
+                }
+              }
+            }
+
+            let randomSlotToGenerateTile2Index = arrayOfEmptySlotIndices[Math.floor(Math.random() * arrayOfEmptySlotIndices.length)]
+
+            for(let i=0; i<4; i++){
+              for(let j=0; j<4; j++){
+                if(i.toString() + j.toString() === randomSlotToGenerateTile2Index){
+                  rerotatedGrid[i][j] = 2;
+                  break;
+                }
+              }
+            }
+          }
+
+          
+          console.log(wasGridMoved);
+          setGrid(rerotatedGrid);
+
+    }
+    break;
+
 
       case 'up': {
 
@@ -561,7 +766,7 @@ const App = () => {
       }
 
       break;
-      case 'ArrowDown': 
+      case 'down': 
       {
 
         let temp1 = grid.map(stack => stack.map(tile => tile))
@@ -679,71 +884,10 @@ const App = () => {
         default: break;
     }
 
-
-    // let populatedTiles = tempTiles.filter(t => t > 0)
-
-    // for(let i = 0; i < 4; i++){
-    //   if(i < populatedTiles.length){
-    //     continue; //
-    //   }
-    //   else {
-    //     populatedTiles.push(0)//by pushing the 0s at the end we basically completed the shift
-    //   }
-    // }
-
-    // logic to merge two tiles with the same values
-    // let shiftedTiles = populatedTiles;
-    // for(let i = 0; i < shiftedTiles.length-1; i++) {// we only iterate over the first 3 tiles to prevent the loop getting out of the array bounds
-    //   if(shiftedTiles[i+1] === shiftedTiles[i]) {
-    //     shiftedTiles[i] *= 2
-    //     shiftedTiles[i+1] = 0;
-    //   }
-    // }
-
-    // after we merged the tiles, we need to shift the tiles again
-    // so we first filter the populated tiles again and push 0s at the end to make the shift logic happen again
-    // maybe after this I should try to extract the shifting function to make the code more modular
-    // shiftedTiles = shiftedTiles.filter(t => t > 0)
-
-    // for(let i = 0; i < 4; i++){
-    //   if(i < shiftedTiles.length){
-    //     continue; //
-    //   }
-    //   else {
-    //     shiftedTiles.push(0)
-    //   }
-    // }
-
-
-    // I don't know why I put this code here, but it maybe because the rerendiring didn't work in chrome and I was trying to force re-rendering, however in safari the code seems to work fine without the below codes
-    // shiftedTiles.sort((a,b) => b-a)
-    // setTiles(shiftedTiles.map((t) => t));
-
-
-    // Generating new 2 numbered tiles logic
-    // generateNew2()
-    //find empty cells
-    // let emptyCells = [];
-    // for(let i = 0; i <shiftedTiles.length; i++){
-    //   if(shiftedTiles[i] === 0){
-    //     emptyCells.push(i)
-    //   }
-    // }
-    // //randomly select an empty cell and populate it with 2
-    // let selectedEmptyCell = Math.floor(Math.random() * emptyCells.length);
-    // shiftedTiles[emptyCells[selectedEmptyCell]] = 2;
-
-    // // also need to reverse at the end to get the correct tiles
-    // setTiles(key==='ArrowLeft'?shiftedTiles.map((t)=>t):shiftedTiles.map(t => t).reverse())
     
 
   }
-  
-  
-    // Now lets try to make this into 4 by 4 grid rather than a single stack
-    // for that I need to use a 2D array for the tiles state
-    // maybe some basic refactoring is needed for the naming of the classes, like grid should be renamed to board. I will do that right away
-    // The next childrens of the board must be called Stack to represent the rows and should contain 4 cells within them.
+
 
   return (
     <div>
