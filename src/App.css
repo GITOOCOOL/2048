@@ -76,6 +76,9 @@ body{
 }
 .sidebar-panel .comment{
   background-color: rgb(237, 181, 239);
+  margin: 10px 0px;
+  padding: 5px 15px;
+
 }
 
 
