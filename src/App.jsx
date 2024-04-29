@@ -36,7 +36,6 @@ const App = () => {
   const [startTime, setStartTime] = useState(Date.now())
 
   const [bestScore, setBestScore] = useState(0);
-  const [appComponentRenderCount, setAppComponentRenderCount] = useState(1);
   
   const resetGrid = () => {
     let newGrid = initializeGrid()
@@ -50,8 +49,6 @@ const App = () => {
 
   useEffect(() => {
     initializeGrid();
-    setStartTime(Date.now());
-    setAppComponentRenderCount(appComponentRenderCount + 1)
   },[]);
 
 
