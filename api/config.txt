@@ -1,0 +1,3 @@
+dbusername: thakurisuraj38
+dbpassword: S2EzjINifBnBZs4e
+connection: mongodb+srv://thakurisuraj38:S2EzjINifBnBZs4e@cluster0.envcokk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0

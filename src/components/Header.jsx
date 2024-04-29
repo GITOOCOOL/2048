@@ -1,6 +1,6 @@
 import React from 'react'
 
-const Header = ({score, handleNew, handleUndo}) => {
+const Header = ({score, bestScore, handleNew, handleUndo}) => {
   return (
     <div className="header">
         <div className="col col1">
@@ -18,7 +18,7 @@ const Header = ({score, handleNew, handleUndo}) => {
         <div className="col col3">
         <div className="scoreboard">
             <span className="scoretext">best</span>
-            <span id="score">{score}</span>
+            <span id="score">{bestScore}</span>
         </div>
         <button className="btn btn-undo" onClick={handleUndo}><div className="btn-label">undo</div></button>
         </div>
