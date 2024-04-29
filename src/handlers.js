@@ -69,7 +69,7 @@ const reverseGrid = (gridToReverse) => {
       // logic to merge two tiles with the same values
       for(let i = 0; i < stack.length-1; i++) {// we only iterate over the first 3 tiles to prevent the loop getting out of the array bounds
         if(stack[i+1] === stack[i]) {
-          stack[i] *=8
+          stack[i] *=2
           sum += stack[i]
           stack[i+1] = 0;
         }

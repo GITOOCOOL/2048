@@ -1,53 +1,9 @@
-// require('dotenv').config()
-
-// const express = require('express')
-// const app = express()
-// const mongoose = require('mongoose')
-
-// var cors = require('cors');
-// app.use(cors);
-
-// mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true })
-// const db = mongoose.connection
-// db.on('error', (error) => console.error(error))
-// db.once('open', () => console.log('Connected to Database'))
-
-// app.use(express.json())
-
-
-
-// const bestScoresRouter = require('./routes/bestScores')
-// // app.use('/bestScores', bestScoresRouter)
-
-// const BestScore = require('./models/bestScore')
-
-
-// // Getting all
-// app.get('/', async (req, res) => {
-//   res.send('hello world')
-// })
-
-// app.listen(8000, () => console.log('Server Started'))
-
-
-
-// const express = require('express')
-// const app = express()
-// const port = 1000
-
-// var cors = require('cors');
-
-// app.use(cors);
-
-// app.get('/', (req, res) => {
-//   res.send({bestScore: 100})
-// })
-
-// app.listen(port, () => console.log(`server listening on port ${port}`))
-
 const express = require('express')
 const app = express()
 const port = 8000
+
+const BestScore = require('./models/Bestscore');
+
 let cors = require('cors')
 app.use(cors());
 
@@ -64,9 +20,34 @@ db.once('open', () => console.log('Connected to Database'))
 
 app.use(express.json())
 
-
-app.get('/', (req, res) => {
-res.send({BestScore: 100})
+// Here in the database we only store only one best score document because we are implementing just a single user game and he can only have a single best score. It's an overkill to use a database for just this but I need to learn how to use mongoDB with react so
+app.get('/bestscore', async (req, res) => {
+    const bestScores = await BestScore.find();
+    res.send(bestScores[0])
 })
+
+
+app.post('/bestscore', async (req, res) => {
+    const newBestScore = new BestScore({
+        bestScore: req.body.bestScore
+    })
+    await newBestScore.save();
+    res.send(newBestScore)
+})
+
+app.patch("/bestscore/:id", async (req, res) => {
+	try {
+		const bestScore = await BestScore.findOne({ _id: req.params.id })
+		if (req.body.bestScore) {
+			bestScore.bestScore = req.body.bestScore
+		}
+		await bestScore.save()
+		res.send(bestScore)
+	} catch {
+		res.status(404)
+		res.send({ error: "Post doesn't exist!" })
+	}
+})
+
 
 app.listen(port, () => console.log(`Server listening on port ${port}`))

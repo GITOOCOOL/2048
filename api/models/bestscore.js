@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 
 const bestScoreSchema = new mongoose.Schema({
   bestScore: {
-    type: 'string',
+    type: Number,
     required: true
   },
 })

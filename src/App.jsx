@@ -8,6 +8,8 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import Info from './components/Info';
 
+import axios from 'axios';
+
 
 
 import {handle} from './handlers'
@@ -36,6 +38,11 @@ const App = () => {
   const [startTime, setStartTime] = useState(Date.now())
 
   const [bestScore, setBestScore] = useState(0);
+
+  const baseURL = "http://localhost:8000/bestscore";
+
+
+
   
   const resetGrid = () => {
     let newGrid = initializeGrid()
@@ -47,9 +54,57 @@ const App = () => {
     setStartTime(Date.now());
   }
 
+  const initializeBestScore = async () => {
+    try {
+      const response = await axios.get(baseURL)
+      if(!response.data.bestScore){
+        postBestScore(0);
+        setBestScore(0);
+      }
+      else{
+        setBestScore(response.data.bestScore);
+      }
+      console.log(response.data.bestScore);
+    } 
+    catch(error) {
+      console.log(error);
+    }
+  }
+
+  const postBestScore = async (bestScore) => {
+    try {
+      const response = await axios.post(baseURL, {bestScore: bestScore})
+      console.log('posted'+response+'with id: '+ response.id)
+    } 
+    catch(error) {
+      console.log(error);
+    }
+  }
+
+  const checkAndUpdateBestScoreOnEveryScoreChange = async () => {
+    try{
+      const response = await axios.get(baseURL)
+      if(response.data.bestScore < score){
+        const newBestScore = {bestScore: score}
+        const res = await axios.patch(baseURL+'/'+response.data._id,newBestScore)
+        console.log('here',res.data);
+        setBestScore(res.data.bestScore);
+      }
+    }
+    catch(error){
+      console.log(error)
+    }
+  }
+
   useEffect(() => {
     initializeGrid();
+    initializeBestScore();
+    
   },[]);
+
+  useEffect(()=>{
+    checkAndUpdateBestScoreOnEveryScoreChange()
+  },[score])
 
 
   const handleNew = (e)=>{
