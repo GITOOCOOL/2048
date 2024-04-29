@@ -5,7 +5,7 @@ body{
 }
 
 .container{
-  width: 90vw;
+  width: 100vw;
   height: 100vh;
   display: flex;
   /* border: 1px solid red; */
@@ -15,9 +15,9 @@ body{
 
 .game-window {
   /* border: 5px solid rgb(246, 238, 10); */
-  width: 60vw;
+  width: 100vw;
   height: 100vh;
-  margin: 0 20% 20%;
+  margin: 0 5% 5%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -26,9 +26,9 @@ body{
   gap: 20px;
 }
 .sidebar{
-  width:60vw;
+  width:100vw;
   height: 100vh;
-  border: 1px solid green;
+  /* border: 1px solid green; */
   font-family:Verdana, Geneva, Tahoma, sans-serif;
   font-variant: normal;
   background-color: gray;
@@ -300,3 +300,5 @@ body{
 .timerdisplay {
   color: rgb(193, 189, 189);
 }
+
+

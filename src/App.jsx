@@ -140,7 +140,7 @@ const App = () => {
           <Footer movesCount={movesCount} startTime={startTime}/>
         </div>
         <div className="sidebar">
-          <Updates></Updates>
+          <Updates />
         </div>
       </div>
     </>
