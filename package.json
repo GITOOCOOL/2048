@@ -9,7 +9,7 @@
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "install-server": "cd api && npm install",
-    "start-server": "cd api && node index.js",
+    "start-server": "cd api && node server.js",
     "install-client": "npm install",
     "build-client": "npm run build",
     "start-client": "npm run start"
