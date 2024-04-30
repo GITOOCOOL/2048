@@ -4,14 +4,16 @@ const Updates = () => {
         <h2>Working on now, Issues, Bugs and Features updates ideas</h2>
         <h4>WORKING ON NOW:</h4>   
         <ul>               
-        <li className="working on">User profile (maybe I am being too ambitious but if I can I can try to include google auth and other auth apis) </li>
+        <li className="working-on">User profile (maybe I am being too ambitious but if I can I can try to include google auth and other auth apis) </li>
 
+        <li className="working-on">Even if there are valid moves, when the grid is full, a game over is triggered</li>
 
         
         </ul>   
 
         <h4>RECENTLY WORKED ON</h4> 
         <ul>
+
         <li className="working-on solved">High Score database<p className="comment">Used the axios library and express server with mongoose to implement a simple api, stored a single record containing the best score and checking and updating on each score</p></li>
 
         <li className="working-on solved">Score System <p className="comment">So in the original game, score is just the sum of every merge operations. Simple.</p><p className="comment">That wasn't as simple as I thought it would be. To be able to workout the feature I had to refactor all the redundant fuctions outside of each switch case. After that I could figure out how score could be calculated. Now the last issue left is to be able to revert the score back when UNDO is pressed. For which I should use a new state called previousScore and store the previous value of score into it like I did for the grid</p><p className="comment">Now the next thing to do is to implement best score feature. I think for that I should use some sort of database, to store the value and I can use that database to store the user accounts and stuffs as well</p><p className="comment">Started building a backend to use mongo database to store the score data. Later I will use this database for auth and user profiles.</p></li>
@@ -43,10 +45,12 @@ const Updates = () => {
             <li className="solved">Another issue found, after pressing new the move count resets to 1 not 0. Seems like moves count is only becomes 0 at page refresh</li>
             <li className="solved">Another issue found, after a page refresh if we press undo, all empty tile comes</li>
             <li className="solved">Another issue found, after presseing new more than once, if we press undo, all empty tiles</li>
+            <li className="working on">Even if there are valid moves, when the grid is full, a game over is triggered</li>
         </ul>
 
         <h4>BUGS:</h4>
         <ul>
+        
         <li className="solved">At this stage, while playing the game, I found one issue:
             If the tiles are in configuration like: 4 4 2 0, when I press left, the next configuration will be 8 0 2 0, but that is not desired. The next configuration should have been 8 2 0 0.
             I know where that issue is coming from, but I need to figure out something to mitigate this. In case I forget later, the issue stems from the part after I merge two tiles. In the previous code, I had reshifted the tiles again after the merge, which was correct thing to do. But when I was cleaning the code up, I just deleted that reshifting part thinking it was not necessay.</li>
@@ -56,7 +60,7 @@ const Updates = () => {
         <ul>
             <li className="working-on">UI enhancements like, score, buttons like new game, undo, etc.</li>
             <li className="working-on">Game Over</li>
-            <li className="working-on">High Score database</li>
+            <li className="working-on solved">High Score database</li>
             <li className="working on">User profile (maybe I am being too ambitious but if I can I can try to include google auth and other auth apis) </li>
             <li>Share your score screenshot button</li>
             <li>Responsive UI</li>
