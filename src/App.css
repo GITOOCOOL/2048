@@ -127,13 +127,14 @@ body{
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  border-radius: 3px;
 }
 .scoretext {
   font-size: 20px;
   border-radius: 3px;
 }
 .scoreboard #score {
-  font-size: 25px;
+  font-size: 20px;
 }
 .btn {
   background-color: rgb(237, 104, 60);
@@ -143,6 +144,7 @@ body{
   justify-content: center;
   font-variant: small-caps;
   border: none;
+  height: 50%;
 }
 .btn:hover{
   cursor:grab;
@@ -156,7 +158,7 @@ body{
 
 .btn-new {
   width: 100%;
-  height: 100%;
+  /* height: 100%; */
   font-size: 33px;
   text-align: center;
   font-style: strong;
@@ -170,7 +172,7 @@ body{
 
 .btn-undo {
   width: 100%;
-  height: 100%;
+
   font-size: 33px;
   text-align: center;
   font-style: strong;
@@ -301,4 +303,20 @@ body{
   color: rgb(193, 189, 189);
 }
 
+.online{
+  background-color: rgb(81, 235, 81);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  position: relative;
+  left: calc(50% - 60px);
 
+}
+.offline{
+  background-color: rgb(219, 135, 10);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  position: relative;
+  left: calc(50% - 60px);
+}

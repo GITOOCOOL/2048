@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import './App.css'
 
-
+ 
 import Board from './components/Board';
 import Updates from './components/Updates';
 import Header from './components/Header';
@@ -38,8 +38,11 @@ const App = () => {
   const [startTime, setStartTime] = useState(Date.now())
 
   const [bestScore, setBestScore] = useState(0);
+  const [isConnected, setIsConnected] = useState(false);
 
-  const baseURL = "http://localhost:8000/bestscore";
+
+
+  const baseURL = "http://localhost:3000/bestscore";
 
 
 
@@ -52,58 +55,93 @@ const App = () => {
     setScore(0)
     setPreviousScore(0)
     setStartTime(Date.now());
+    checkAndUpdateInternetConnection();
+    initializeBestScore();
+
   }
+
+  const checkAndUpdateInternetConnection = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/internet_connection')
+        console.log('checking internet', response.data);
+        setIsConnected(response.data.connection);
+      } 
+      catch(error) {
+        console.log('No server connection');
+        setIsConnected(false);
+      }
+  }
+  
 
   const initializeBestScore = async () => {
-    try {
-      const response = await axios.get(baseURL)
-      if(!response.data.bestScore){
-        postBestScore(0);
-        setBestScore(0);
+          checkAndUpdateInternetConnection();
+          if(isConnected){
+            try {
+              const response = await axios.get(baseURL)
+              if(response.data.bestScore === -1){
+                console.log('Empty database, so posting a bestScore 0')
+                postBestScore(0);
+                setBestScore(0);
+              }
+              else{
+                console.log('initializing bestScore with, ', response.data.bestScore);
+                setBestScore(response.data.bestScore);
+              }
+            } catch (error) {
+              console.log('error initializing best score');
+            }
       }
-      else{
-        setBestScore(response.data.bestScore);
-      }
-      console.log(response.data.bestScore);
-    } 
-    catch(error) {
-      console.log(error);
-    }
-  }
+          }
+
+
 
   const postBestScore = async (bestScore) => {
-    try {
-      const response = await axios.post(baseURL, {bestScore: bestScore})
-      console.log('posted'+response+'with id: '+ response.id)
-    } 
-    catch(error) {
-      console.log(error);
+    checkAndUpdateInternetConnection();
+    if(isConnected){
+      try {
+        const response = await axios.post(baseURL, {bestScore: bestScore})
+        console.log('posted'+response+'with id: '+ response.id)
+      } 
+      catch(error) {
+        console.error('Error while postBestScore')
+      }
     }
   }
 
   const checkAndUpdateBestScoreOnEveryScoreChange = async () => {
     try{
-      const response = await axios.get(baseURL)
-      if(response.data.bestScore < score){
-        const newBestScore = {bestScore: score}
-        const res = await axios.patch(baseURL+'/'+response.data._id,newBestScore)
-        console.log('here',res.data);
-        setBestScore(res.data.bestScore);
+      checkAndUpdateInternetConnection();
+      if(isConnected){
+        const response = await axios.get(baseURL)
+        if(response.data.bestScore < score){
+          const newBestScore = {bestScore: score}
+          const res = await axios.patch(baseURL+'/'+response.data._id,newBestScore)
+          console.log('bestScore from db',res.data);
+          setBestScore(res.data.bestScore);
+        }
       }
     }
     catch(error){
-      console.log(error)
+      console.error('Error while checkAndUpdateScoreOnEveryScoreChange')
     }
   }
 
+
+
   useEffect(() => {
     initializeGrid();
+    checkAndUpdateInternetConnection();
     initializeBestScore();
-    
   },[]);
+  useEffect(()=>{
+    initializeBestScore();
+  },[isConnected])
+
 
   useEffect(()=>{
-    checkAndUpdateBestScoreOnEveryScoreChange()
+    checkAndUpdateInternetConnection();
+    initializeBestScore();
+    checkAndUpdateBestScoreOnEveryScoreChange();
   },[score])
 
 
@@ -134,7 +172,8 @@ const App = () => {
     <>
       <div className="container">
         <div className="game-window">
-          <Header score={score} bestScore = {bestScore} handleNew={handleNew} handleUndo={handleUndo}></Header>
+          <div className={isConnected?'online':'offline'}></div>
+          <Header score={score} bestScore = {bestScore} isConnected={isConnected}  handleNew={handleNew} handleUndo={handleUndo}></Header>
           <Info />
           <Board grid={grid}></Board>
           <Footer movesCount={movesCount} startTime={startTime}/>
@@ -146,6 +185,5 @@ const App = () => {
     </>
   )
 }
-
 export default App
 
