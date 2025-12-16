@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import Stack from './Stack'
 
-const Board = ({grid}) => {
+const Board = ({grid, children}) => {
 
 
   return (
@@ -10,6 +10,7 @@ const Board = ({grid}) => {
         <Stack stack={grid[1]}></Stack>
         <Stack stack={grid[2]}></Stack>
         <Stack stack={grid[3]}></Stack>
+        {children}
     </div>
   )
 }

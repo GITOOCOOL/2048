@@ -91,6 +91,18 @@ const DeveloperMenu = ({ onClose }) => {
     </svg>
   );
 
+  const CodegenIcon = () => (
+    <svg 
+      viewBox="0 0 24 24" 
+      fill="currentColor" 
+      width="16" 
+      height="16" 
+      style={{ marginRight: "5px", color: "#9b59b6" }}
+    >
+      <path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z" />
+    </svg>
+  );
+
   return (
     <div className="developer-menu-overlay">
       <div className="developer-menu-content">
@@ -137,6 +149,7 @@ const DeveloperMenu = ({ onClose }) => {
               <option value="user">User</option>
               <option value="gemini">Gemini</option>
               <option value="system">System</option>
+              <option value="codegen">Codegen</option>
             </select>
           </div>
           <button className="close-btn" onClick={onClose}>
@@ -220,6 +233,7 @@ const DeveloperMenu = ({ onClose }) => {
                       <div className="log-item-header">
                         <span className={`status-dot status-${log.status}`}></span>
                         {log.source === "gemini" && <GeminiIcon />}
+                        {log.source === "codegen" && <CodegenIcon />}
                         <span className="log-title">{log.title}</span>
                       </div>
                       <div className="log-item-meta">

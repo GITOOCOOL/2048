@@ -25,7 +25,7 @@ const Timer = ({ startTime }) => {
         {hours < 10 ? "0" + hours : hours}:
         {minutes < 10 ? "0" + minutes : minutes}:
         {seconds < 10 ? "0" + seconds : seconds}
-        <button onClick={() => clearInterval(interval)}>reset</button>
+
       </div>
     );
   } else {

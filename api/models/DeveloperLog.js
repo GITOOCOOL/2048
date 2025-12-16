@@ -26,7 +26,7 @@ const developerLogSchema = new mongoose.Schema({
   },
   source: {
     type: String,
-    enum: ["user", "gemini", "system"],
+    enum: ["user", "gemini", "system", "codegen"],
     default: "system",
   },
   createdAt: {
