@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { API_BASE_URL } from "../config";
 
 const DeveloperMenu = ({ onClose }) => {
   const [logs, setLogs] = useState([]);
   const [selectedLog, setSelectedLog] = useState(null);
   const [loading, setLoading] = useState(true);
-  const baseURL = "http://localhost:3000/logs";
+  const baseURL = `${API_BASE_URL}/logs`;
 
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterPriority, setFilterPriority] = useState("all");
@@ -36,7 +37,7 @@ const DeveloperMenu = ({ onClose }) => {
   const handleAnalyze = async () => {
     setAnalyzing(true);
     try {
-      const response = await axios.post("http://localhost:3000/analyze");
+      const response = await axios.post(`${API_BASE_URL}/analyze`);
       setLogs([response.data, ...logs]);
       setSelectedLog(response.data);
     } catch (error) {

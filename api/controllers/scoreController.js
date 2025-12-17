@@ -2,9 +2,9 @@ const BestScore = require("../models/BestScore");
 
 exports.getBestScore = async (req, res, next) => {
   try {
-    const bestScores = await BestScore.find();
-    if (bestScores.length > 0) {
-      res.send(bestScores[0]);
+    const bestScore = await BestScore.findOne().sort({ bestScore: -1 });
+    if (bestScore) {
+      res.send(bestScore);
     } else {
       res.send({ bestScore: -1 });
     }
