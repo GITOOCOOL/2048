@@ -4,30 +4,335 @@ body {
   height: 100vh;
 }
 
+/* Main App Layout */
 .container {
   width: 100vw;
   height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Prevent body scroll */
+}
+
+/* The Window splits into Navbar (top) and Content (bottom) */
+.window {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: rgb(32, 31, 29); /* Base background */
+}
+
+/* Game Over Overlay */
+.game-over-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(238, 228, 218, 0.73); /* Lighter standard 2048 overlay */
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: rgb(32, 31, 29);
-  overflow: hidden;
+  z-index: 500; /* Bumped up significantly to avoid conflicts */
+  border-radius: 8px;
+  animation: dramatic-entry 2s cubic-bezier(0.19, 1, 0.22, 1) forwards; /* Slow, easing entry */
+  backdrop-filter: blur(2px);
+  opacity: 0; /* Start hidden */
 }
 
+@keyframes dramatic-entry {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.game-over-content {
+  text-align: center;
+}
+
+.game-over-content h1 {
+  font-size: 60px;
+  font-weight: 800; /* Extra bold */
+  color: #776e65; /* Dark text for contrast */
+  margin-bottom: 0px;
+  text-shadow: 2px 2px 0px rgba(255,255,255,0.5); /* Subtle pop */
+}
+
+.game-over-content p {
+  font-size: 30px;
+  color: #776e65;
+  margin-bottom: 30px;
+  font-weight: bold;
+}
+
+/* Modern Navbar - now Flex Item */
+.navbar {
+  position: relative; /* In-flow */
+  width: 100%;
+  height: 60px;
+  background-color: rgba(255, 255, 255, 0.9); /* Slightly more opaque */
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  flex-shrink: 0; /* Never shrink */
+}
+
+/* Scrollable Content Area */
+.content-wrapper {
+    flex: 1; /* Fills remaining height */
+    width: 100%;
+    overflow-y: auto; /* Scroll ONLY the content */
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* justify-content: center; Optional: centers vertically if content is small */
+    padding: 20px 0; /* Breathing room top/bottom */
+}
+
+/* Game Window - Just a container now */
 .game-window {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 20px;
-  padding: 20px;
-  background-color: rgb(32, 31, 29);
-}
-/* Sidebar removed */
-.sidebar {
-  display: none;
+  /* No fixed padding/margin needed */
 }
 
+.nav-content {
+  width: 100%;
+  max-width: 900px;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-brand {
+  text-decoration: none;
+}
+
+.mini-logo {
+  background-color: rgb(255, 208, 0);
+  color: #f9f6f2; /* Off-white text */
+  font-weight: bold;
+  font-size: 18px; /* Slight increase */
+  width: 60px;
+  height: 55px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  letter-spacing: 0;
+}
+
+.nav-items {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: #776e65; /* Standard 2048 text gray */
+  font-weight: 600;
+  font-size: 14px;
+  transition: color 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.nav-link:hover {
+  color: #2c2a28; /* Darker on hover */
+}
+
+.nav-link.active {
+  color: #f2b179; 
+}
+
+.nav-link.user-badge {
+    color: #f2b179; 
+    border: 1px solid #f2b179;
+    padding: 4px 10px;
+    border-radius: 15px;
+    transition: all 0.2s;
+}
+.nav-link.user-badge:hover {
+    background-color: #f2b179;
+    color: white;
+}
+
+.nav-dev-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #ccc;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+}
+.nav-dev-btn:hover {
+  color: #776e65;
+}
+
+/* --- Hamburger Menu --- */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 30px;
+  height: 21px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 10;
+}
+
+.bar {
+  width: 100%;
+  height: 3px;
+  background-color: #776e65;
+  border-radius: 3px;
+  transition: all 0.3s ease;
+}
+
+.bar.open:nth-child(1) {
+  transform: translateY(9px) rotate(45deg);
+}
+
+.bar.open:nth-child(2) {
+  opacity: 0;
+}
+
+.bar.open:nth-child(3) {
+  transform: translateY(-9px) rotate(-45deg);
+}
+
+/* Mobile Nav Styles */
+@media (max-width: 650px) {
+  .hamburger {
+    display: flex; /* Show button */
+  }
+
+  .nav-items {
+    position: absolute;
+    top: 60px; /* Below navbar */
+    left: 0;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.95);
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 20px 0;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    
+    /* Animation: slide down */
+    transform: translateY(-150%);
+    transition: transform 0.3s ease-in-out;
+    z-index: 999;
+  }
+
+  .nav-items.active {
+    transform: translateY(0);
+  }
+
+  .nav-content {
+      align-items: center;
+      flex-direction: row; 
+  }
+}
+
+/* Ensure content is pushed down on ALL screens to account for fixed navbar */
+.game-window, .account-container, .leaderboard-container {
+    padding-top: 80px; /* Navbar height (60px) + 20px buffer */
+    box-sizing: border-box; /* Include padding in height/width calculations */
+}
+
+/* Override previous mobile-specific padding since we apply it globally now */
+@media (max-width: 500px) {
+  .game-window {
+    margin-top: 0; /* Remove extra margin as padding handles it */
+    transform: scale(0.7); /* Scale down the entire game */
+    transform-origin: top center;
+  }
+  
+  .container {
+    height: auto; 
+    min-height: 100vh;
+    overflow-y: auto;
+    align-items: flex-start;
+  }
+}
+
+/* Update to Header styles for Dual Score Display */
+
+.dual-score-container {
+  width: 100%;
+  height: 50%; /* Matches the single scoreboard height */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; 
+  gap: 4px; 
+}
+
+.mini-scoreboard {
+  width: 100%;
+  flex: 1; 
+  background-color: rgb(59, 60, 61);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  min-height: 0; 
+}
+
+.scoretext-mini {
+  font-size: 11px; 
+  color: rgb(238, 228, 218);
+  font-weight: bold;
+  text-transform: uppercase;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+
+#score-mini {
+  font-size: 16px; 
+  font-weight: bold;
+  color: white;
+  line-height: 1;
+}
+
+/* Ensure Mobile Nav Positions Correctly in Flex Layout */
+@media (max-width: 650px) {
+  /* No special position handling needed for navbar parent since it's relative by default now */
+  
+  .nav-items {
+    top: 60px; /* Still matches navbar height */
+    /* Position absolute is relative to the nearest positioned ancestor (navbar) */
+  }
+}
+
+/* Ensure Game scales on mobile */
+@media (max-width: 500px) {
+  /* We still want scaling, but layout is flex now so margin-top 0 is fine */
+  .game-window {
+    transform: scale(0.7);
+    transform-origin: top center;
+    /* padding-top: 20px is handled by content-wrapper */
+  }
+}
+
+/* --- RESTORED GAME STYLES MISSING FROM PREVIOUS EDIT --- */
 
 .header {
   display: flex;
@@ -101,7 +406,6 @@ body {
 
 .btn-new {
   width: 100%;
-  /* height: 100%; */
   font-size: 33px;
   text-align: center;
   font-style: strong;
@@ -115,7 +419,6 @@ body {
 
 .btn-undo {
   width: 100%;
-
   font-size: 33px;
   text-align: center;
   font-style: strong;
@@ -198,7 +501,6 @@ body {
 }
 .tile128 {
   background-color: rgb(255, 208, 0);
-
   color: white;
 }
 
@@ -244,38 +546,34 @@ body {
   gap: 5px;
 }
 
+/* Status Indicators */
 .status-dot {
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
+  border: 1px solid rgba(0,0,0,0.2);
 }
 
 .status-dot.online {
-  background-color: rgb(81, 235, 81);
-  box-shadow: 0 0 8px rgba(81, 235, 81, 0.6);
+  background-color: #2ecc71; /* Green */
+  box-shadow: 0 0 5px rgba(46, 204, 113, 0.5);
 }
 
 .status-dot.offline {
-  background-color: rgb(219, 135, 10);
-}
-
-.status-text {
-  font-size: 14px;
-  font-variant: normal;
-  font-weight: bold;
-  text-transform: lowercase;
-  letter-spacing: 1px;
+  background-color: #e74c3c; /* Red */
 }
 
 .status-text.online-text {
-  color: rgb(81, 235, 81);
+  color: #2ecc71; /* Green Text */
+  font-weight: bold;
 }
 
 .status-text.offline-text {
-  color: rgb(219, 135, 10);
+  color: #e74c3c; /* Red Text */
+  font-weight: bold;
 }
 
-/* Developer Menu Styles */
+/* --- Developer Menu Styles --- */
 .dev-wrench-btn {
   position: fixed;
   top: 20px;
@@ -310,7 +608,8 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 2000; /* Ensure it's above everything including Game Over */
+  backdrop-filter: blur(5px);
 }
 
 .developer-menu-content {
@@ -323,6 +622,7 @@ body {
   color: white;
   padding: 20px;
   box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  border: 1px solid #444;
 }
 
 .dev-header {
@@ -337,6 +637,7 @@ body {
 .dev-filters {
   display: flex;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 .dev-filters select {
@@ -354,11 +655,16 @@ body {
   padding: 5px 10px;
   cursor: pointer;
   border-radius: 4px;
+  font-size: 16px;
+}
+.close-btn:hover {
+  background-color: #444;
 }
 
 .dev-body {
   flex: 1;
   overflow: hidden;
+  position: relative;
 }
 
 .logs-container {
@@ -369,6 +675,7 @@ body {
 
 .logs-list {
   width: 350px;
+  flex-shrink: 0;
   border-right: 1px solid #444;
   overflow-y: auto;
   padding-right: 20px;
@@ -377,6 +684,7 @@ body {
 .logs-list ul {
   list-style: none;
   padding: 0;
+  margin: 0;
 }
 
 .log-item {
@@ -387,6 +695,7 @@ body {
   margin-bottom: 5px;
   border-radius: 4px;
   border-left: 4px solid transparent;
+  transition: background 0.2s;
 }
 
 .log-item:hover, .log-item.active {
@@ -589,59 +898,248 @@ body {
   color: #e0e0e0;
 }
 
+/* --- Page Overlays (iPhone Control Center Style) --- */
+.page-overlay-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1500; /* Above navbar (1000) and game */
+  pointer-events: none; /* Let clicks pass through if we want, but usually overlay captures them. User said "game visible", but usually overlays block interaction with background. */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
-/* Game Over Overlay */
-.game-over-overlay {
+.page-overlay-backdrop {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(32, 31, 29, 0.85); /* Dark theme match */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 100;
-  border-radius: 8px;
-  animation: fade-in 0.8s ease;
+  background-color: rgba(30, 30, 30, 0.4); /* Dark semi-transparent */
+  pointer-events: auto;
+  animation: fade-in 0.3s ease;
 }
 
-.game-over-content {
+.page-overlay-content {
+  position: relative;
+  width: 90%;
+  max-width: 600px;
+  max-height: 85vh;
+  background-color: rgba(30, 30, 30, 0.85); /* Much darker and more opaque */
+  backdrop-filter: blur(15px); /* Blur ONLY the content box, not the whole screen */
+  -webkit-backdrop-filter: blur(15px);
+  border-radius: 24px; 
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5); /* Stronger shadow */
+  border: 1px solid rgba(255, 255, 255, 0.2); /* defined border */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  pointer-events: auto;
+  animation: slide-up-subtle 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  color: #ffffff; /* Force bright white text */
+}
+
+.overlay-header {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  margin-right: 15px;
+  display: flex;
+  align-items: center;
+  padding: 5px;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+
+.back-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.overlay-title {
+  color: white;
+  font-size: 18px;
+  font-weight: 600;
+  flex: 1;
+  text-align: center;
+  margin-right: 40px; /* Balance the back button spacing */
+}
+
+.overlay-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  color: #f9f6f2;
+}
+
+/* Enhancing child components to look good on glass */
+.account-container, .leaderboard-container {
+  color: #f9f6f2 !important;
   text-align: center;
 }
 
-.game-over-content h1 {
-  font-size: 60px;
-  font-weight: bold;
-  color: #f9f6f2; /* Light text for dark theme */
-  margin-bottom: 0px;
+.account-container h2, .leaderboard-container h2 {
+  display: none; /* Hide default headers since we have overlay header */
 }
 
-.game-over-content p {
-  font-size: 24px;
-  color: #c0b3a4;
-  margin-bottom: 20px;
+@keyframes slide-up-subtle {
+  0% { transform: translateY(20px) scale(0.98); opacity: 0; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+/* Loading Spinner */
+.spinner-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 200px; /* Adjust as needed */
+  width: 100%;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(139, 139, 139, 0.3);
+  border-radius: 50%;
+  border-top-color: #8f7a66; /* Match 2048 theme */
+  animation: spin 1s ease-in-out infinite;
+  margin-bottom: 10px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  color: #776e65;
   font-weight: bold;
 }
 
-.btn-retry {
-  background-color: #e67e22; /* Matches undo/new buttons orange */
-  color: #f9f6f2;
-  border: none;
-  border-radius: 3px;
-  padding: 10px 25px;
-  font-size: 20px;
+/* Offline/Error Message */
+.error-container {
+  text-align: center;
+  padding: 30px;
+  color: #776e65;
+}
+
+.error-icon {
+  font-size: 40px;
+  margin-bottom: 15px;
+  display: block;
+}
+
+.offline-badge {
+  background-color: #e74c3c;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
   font-weight: bold;
+  display: inline-block;
+  margin-bottom: 10px;
+}
+
+/* Switch Toggle Styles (iOS Style) */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 28px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
   cursor: pointer;
-  transition: transform 0.1s;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #444; /* Dark inactive */
+  transition: .4s;
 }
 
-.btn-retry:hover {
-  transform: scale(1.05);
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #27ae60; /* Green active */
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #27ae60;
+}
+
+input:checked + .slider:before {
+  transform: translateX(22px);
+}
+
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+/* Celebration Toast */
+.celebration-toast {
+    position: fixed;
+    top: 90px; /* Below navbar */
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 215, 0, 0.9); /* Gold with transparency */
+    color: #444;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 16px;
+    font-weight: 800;
+    box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+    z-index: 2000;
+    animation: slide-down-fade 4s ease forwards;
+    pointer-events: none;
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255,255,255,0.4);
+}
+
+@keyframes slide-down-fade {
+    0% { transform: translate(-50%, -20px); opacity: 0; }
+    10% { transform: translate(-50%, 0); opacity: 1; }
+    80% { opacity: 1; transform: translate(-50%, 0); }
+    100% { opacity: 0; transform: translate(-50%, -10px); }
+}
+
+/* AI Panel */
+.ai-control-panel {
+    animation: fade-in 0.5s ease;
 }
 
 @keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
-

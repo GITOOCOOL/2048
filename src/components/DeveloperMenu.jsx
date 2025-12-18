@@ -286,5 +286,4 @@ const DeveloperMenu = ({ onClose }) => {
     </div>
   );
 };
-
 export default DeveloperMenu;
