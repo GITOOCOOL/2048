@@ -1,19 +1,20 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import axios from "axios";
 import "./App.css";
 import DeveloperMenu from "./components/DeveloperMenu";
 import { NavLink, Route, Routes } from "react-router-dom";
 import Game from "./components/Game";
-import Account from "./pages/Account";
-import Leaderboard from "./pages/Leaderboard";
 import { useGame } from "./hooks/useGame";
 import { useBestScore } from "./hooks/useBestScore";
 import { useAI } from "./hooks/useAI";
 import { useMusic } from "./hooks/useMusic";
 import PageOverlay from "./components/PageOverlay";
 import { API_BASE_URL } from "./config";
-import AIArena from "./pages/AIArena";
-import BackgroundMusicPage from "./pages/BackgroundMusicPage";
+
+const Account = lazy(() => import("./pages/Account"));
+const Leaderboard = lazy(() => import("./pages/Leaderboard"));
+const AIArena = lazy(() => import("./pages/AIArena"));
+const BackgroundMusicPage = lazy(() => import("./pages/BackgroundMusicPage"));
 
 const App = () => {
   const [showDevMenu, setShowDevMenu] = useState(false);
@@ -143,6 +144,7 @@ const App = () => {
           />
 
           {/* Pages are rendered as overlays on top of the game */}
+          <Suspense fallback={<div className="window-loading"><div className="loader"></div></div>}>
           <Routes>
             <Route path="/" element={null} />
             <Route path="/account" element={
@@ -167,50 +169,22 @@ const App = () => {
             } />
             <Route path="/settings" element={
               <PageOverlay title="Settings">
-                <div style={{ padding: '20px' }}>
-                  <div className="setting-item" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px'}}>
-                    <div>
-                      <h4 style={{margin: 0, fontSize: '1.2em'}}>Sound Effects</h4>
-                      <p style={{margin: '5px 0 0', opacity: 0.7, fontSize: '0.9em'}}>Enable retro game sounds</p>
-                    </div>
-                    <label className="switch">
-                        <input 
-                            type="checkbox" 
-                            checked={game.settings?.sound || false} 
-                            onChange={(e) => game.updateSetting('sound', e.target.checked)} 
-                        />
-                        <span className="slider round"></span>
-                    </label>
-                  </div>
-                  
-                  {/* Additional placeholder toggles */}
+                 <div style={{ padding: '20px' }}>
                    <div className="setting-item" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px'}}>
-                    <div>
-                      <h4 style={{margin: 0, fontSize: '1.2em'}}>Haptics</h4>
-                      <p style={{margin: '5px 0 0', opacity: 0.7, fontSize: '0.9em'}}>Vibrate on moves (Mobile)</p>
-                    </div>
-                    <label className="switch">
-                        <input 
-                            type="checkbox" 
-                            checked={game.settings?.haptics || false} 
-                            onChange={(e) => game.updateSetting('haptics', e.target.checked)} 
-                        />
-                        <span className="slider round"></span>
-                    </label>
-                  </div>
-                  
-                   <div className="setting-item" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px'}}>
-                    <div>
-                      <h4 style={{margin: 0, fontSize: '1.2em'}}>Dark Theme</h4>
-                      <p style={{margin: '5px 0 0', opacity: 0.7, fontSize: '0.9em'}}>Always on (for now)</p>
-                    </div>
-                    <label className="switch">
-                        <input type="checkbox" checked={true} disabled />
-                        <span className="slider round"></span>
-                    </label>
-                  </div>
-
-                </div>
+                     <div>
+                       <h4 style={{margin: 0, fontSize: '1.2em'}}>Sound Effects</h4>
+                       <p style={{margin: '5px 0 0', opacity: 0.7, fontSize: '0.9em'}}>Enable retro game sounds</p>
+                     </div>
+                     <label className="switch">
+                         <input 
+                             type="checkbox" 
+                             checked={game.settings?.sound || false} 
+                             onChange={(e) => game.updateSetting('sound', e.target.checked)} 
+                         />
+                         <span className="slider round"></span>
+                     </label>
+                   </div>
+                 </div>
               </PageOverlay>
             } />
             <Route path="/about" element={
@@ -224,6 +198,7 @@ const App = () => {
               </PageOverlay>
             } />
           </Routes>
+          </Suspense>
         </div>
         
       </div>

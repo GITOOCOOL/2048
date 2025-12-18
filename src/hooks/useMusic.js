@@ -1,94 +1,56 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { musicEngine } from '../utils/music/MusicEngine';
+import { useState, useEffect, useRef } from 'react';
 import { STATIONS } from '../utils/music/stations';
-import axios from 'axios';
-import { API_BASE_URL } from '../config';
 
 export const useMusic = (user) => {
+    // Default to first station (Stream) instead of Generative
+    const [stations] = useState(STATIONS);
+    const [currentStation, setCurrentStation] = useState(STATIONS[0]);
     const [isPlaying, setIsPlaying] = useState(false);
-    const [currentStation, setCurrentStation] = useState(STATIONS[0]); // Default to Generative
-    const [volume, setVolume] = useState(0.5); // 0 to 1
-    const [isInitialized, setIsInitialized] = useState(false);
     
+    // Audio Element Ref for streaming
     const audioRef = useRef(new Audio());
 
-    // Initialize Engine (Requires User Interaction usually)
-    const initAudio = useCallback(async () => {
-        if (!isInitialized) {
-            await musicEngine.initialize();
-            setIsInitialized(true);
-        }
-    }, [isInitialized]);
+    // Handle Play/Pause
+    const togglePlay = () => {
+        setIsPlaying(!isPlaying);
+    };
 
-    // Handle Volume Changes
-    useEffect(() => {
-        if (audioRef.current) {
-            audioRef.current.volume = volume;
-        }
-        musicEngine.setVolume(volume === 0 ? -100 : (Math.log10(volume) * 20)); // Approximate dB
-    }, [volume]);
-
-    // Play a specific station
-    const playStation = async (station) => {
-        if (!isInitialized) await initAudio();
-        
-        // Stop everything first
-        musicEngine.stop(); 
-        audioRef.current.pause();
-
+    const playStation = (station) => {
         setCurrentStation(station);
-
-        if (station.type === 'generative') {
-            // Start Generative Engine
-            if (user) {
-               // Load user theme logic if needed, or just default
-               // For now, just start random or last theme
-               // Re-use existing theme logic:
-               if (!musicEngine.currentSeed) {
-                   musicEngine.setTheme(12345, { tempo: 100, complexity: 0.2, ragaId: 'yaman' });
-               }
-            } else {
-               if (!musicEngine.currentSeed) {
-                   musicEngine.setTheme(12345, { tempo: 100, complexity: 0.2, ragaId: 'yaman' });
-               }
-            }
-            musicEngine.start();
-        } else if (station.type === 'stream') {
-            // Start Stream
-            audioRef.current.src = station.url;
-            audioRef.current.play().catch(e => console.error("Stream play failed", e));
-        }
-        
         setIsPlaying(true);
     };
 
-    const togglePlay = async () => {
-        if (!isInitialized) await initAudio();
+    // Effect: Handle Stream Playback
+    useEffect(() => {
+        const audio = audioRef.current;
+        
+        const handleEnded = () => setIsPlaying(false);
+        audio.addEventListener('ended', handleEnded);
 
-        if (isPlaying) {
-            // PAUSE
-            musicEngine.pause();
-            audioRef.current.pause();
-            setIsPlaying(false);
+        if (isPlaying && currentStation) {
+             if (audio.src !== currentStation.url) {
+                 audio.src = currentStation.url;
+                 audio.load();
+             }
+             audio.play().catch(e => {
+                 console.error("Playback failed:", e);
+                 setIsPlaying(false);
+             });
         } else {
-            // RESUME
-            if (currentStation.type === 'generative') {
-                musicEngine.start();
-            } else {
-                audioRef.current.play();
-            }
-            setIsPlaying(true);
+            audio.pause();
         }
-    };
+
+        return () => {
+             audio.removeEventListener('ended', handleEnded);
+             audio.pause(); 
+        };
+    }, [isPlaying, currentStation]);
 
     return {
-        isPlaying,
-        togglePlay,
+        stations,
         currentStation,
-        setCurrentStation: playStation, // Expose as 'setCurrentStation' but use our wrapper
-        stations: STATIONS,
-        volume,
-        setVolume,
-        initAudio
+        setCurrentStation: playStation,
+        isPlaying,
+        togglePlay
     };
 };

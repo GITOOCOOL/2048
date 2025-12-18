@@ -4,6 +4,7 @@
 services:
   backend:
     build: ./api
+    restart: always
     ports:
       - "3000:3000"
     env_file:
@@ -17,6 +18,7 @@ services:
       context: .
       args:
         VITE_API_URL: http://localhost:3000
+    restart: always
     ports:
       - "8080:80"
     depends_on:
