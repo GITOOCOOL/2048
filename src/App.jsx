@@ -9,9 +9,11 @@ import Leaderboard from "./pages/Leaderboard";
 import { useGame } from "./hooks/useGame";
 import { useBestScore } from "./hooks/useBestScore";
 import { useAI } from "./hooks/useAI";
+import { useMusic } from "./hooks/useMusic";
 import PageOverlay from "./components/PageOverlay";
 import { API_BASE_URL } from "./config";
 import AIArena from "./pages/AIArena";
+import BackgroundMusicPage from "./pages/BackgroundMusicPage";
 
 const App = () => {
   const [showDevMenu, setShowDevMenu] = useState(false);
@@ -21,6 +23,7 @@ const App = () => {
   // Initialize Game Logic at App level to persist state across routes
   const game = useGame({ showDevMenu, onReset: null });
   const ai = useAI(game); // Initialize AI Module (Game Logic Only)
+  const music = useMusic(user); // Initialize Music System
   
   const { bestScore, globalBestScore, isConnected, initializeBestScore, showCelebration, triggerNewRecordConfetti } = useBestScore(game.score, user);
   
@@ -115,10 +118,10 @@ const App = () => {
                 <NavLink to="/account" onClick={closeMenu} className={({ isActive }) => (isActive ? "nav-link active" : "nav-link") + (user ? " user-badge" : "")}>
                     {user ? `👤 ${user.username}` : "Account"}
                 </NavLink>
+                <NavLink to="/bgm" onClick={closeMenu} className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>🎵 BGMs</NavLink>
                 <NavLink to="/ai" onClick={closeMenu} className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>🤖 Bot</NavLink>
                 <NavLink to="/settings" onClick={closeMenu} className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>Settings</NavLink>
                 <NavLink to="/about" onClick={closeMenu} className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>About</NavLink>
-                {import.meta.env.DEV && (
                   <>
                     <button onClick={() => { setShowDevMenu(true); closeMenu(); }} className="nav-dev-btn" title="Developer Logs">
                         <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
@@ -126,7 +129,6 @@ const App = () => {
                         </svg>
                     </button>
                   </>
-                )}
              </div>
            </div>
         </nav>
@@ -151,6 +153,11 @@ const App = () => {
             <Route path="/leaderboard" element={
               <PageOverlay title="Leaderboard">
                 <Leaderboard />
+              </PageOverlay>
+            } />
+            <Route path="/bgm" element={
+              <PageOverlay title="Background Music">
+                <BackgroundMusicPage music={music} />
               </PageOverlay>
             } />
             <Route path="/ai" element={
