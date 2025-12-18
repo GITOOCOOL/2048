@@ -1,0 +1,26 @@
+services:
+  # 1. The Backend API Service
+  - type: web
+    name: 2048-api
+    runtime: node
+    rootDir: api
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: ALLOWED_ORIGINS
+        value: "*" # Allowing all origins for the initial deployment to avoid CORS headaches.
+    # You will need to add MONGO_URI in the Render Dashboard securely!
+
+  # 2. The Frontend Web Service
+  - type: web
+    name: 2048-web
+    runtime: docker
+    plan: free
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: 2048-api
+          property: url # Uses the public URL (https://...)
