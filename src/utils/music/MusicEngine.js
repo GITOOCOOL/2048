@@ -162,9 +162,12 @@ class MusicEngine {
     }
 
     stop() {
-        // Just stop transport, don't destroy loop unless generating new one
         Tone.Transport.stop();
-        Tone.Transport.cancel(); 
+        Tone.Transport.cancel(); // Clears all scheduled events including Parts
+        if (this.parts) {
+            this.parts.forEach(p => p.dispose());
+        }
+        this.parts = [];
         this.releaseAll();
         this.isPlaying = false;
     }
@@ -185,135 +188,8 @@ class MusicEngine {
         this.generate(seed, parameters);
     }
     
-    // ... MusicEngine Class ...
-
-    // --- UPFRONT GENERATION (Optimization) ---
-    
+    // Main Generation Logic
     generate(seed, parameters) {
-        if (!this.isInitialized) return;
-        this.stop(); // Clear previous parts
-        
-        const rng = new PRNG(seed);
-        this.currentSeed = seed;
-        
-        // Setup Global Params
-        Tone.Transport.bpm.value = parameters.tempo || 90;
-        
-        // Style Config
-        const styleName = parameters.style || 'lofi';
-        const style = STYLES[styleName] || STYLES['lofi'];
-        
-        // Apply Timbre/FX
-        if (this.synth) this.synth.set({ oscillator: { type: style.oscillator }, envelope: style.envelope });
-        if (this.reverb) this.reverb.set(style.reverb);
-
-        // Generate the Score (Data only)
-        const score = this.generateScore(styleName, style, rng);
-        
-        // Schedule Playback (Lightweight)
-        this.playScore(score);
-        
-        console.log(`[MusicEngine] Generated ${styleName} track. Events: ${score.tracks.melody.length + score.tracks.chords.length}`);
-    }
-
-    generateScore(styleName, style, rng) {
-        const tracks = { melody: [], chords: [], bass: [], drums: [] };
-        const measureCount = 32; // Generate 32 bars (~1 minute loop)
-        
-        // Scale
-        const scaleIntervals = SCALES[style.scaleType] || SCALES['dorian'];
-        const rootFreq = Tone.Frequency("C3").transpose(rng.range(-5, 5));
-        const scaleNotes = scaleIntervals.map(i => rootFreq.transpose(i).toNote());
-        
-        // Helpers
-        const getChord = (rootIdx, size=3) => {
-            return Array.from({length: size}, (_, i) => scaleNotes[(rootIdx + i*2) % scaleNotes.length]);
-        };
-
-        for (let m = 0; m < measureCount; m++) {
-            const timeOffset = m * Tone.Time("1m").toSeconds();
-            
-            // --- LOFI LOGIC ---
-            if (styleName === 'lofi') {
-                // Beats: Hip Hop (Kick on 1, Snare on 2)
-                tracks.drums.push({ time: "0:0", note: "C2", duration: "8n" }); // Kick
-                tracks.drums.push({ time: "0:2", note: "G2", duration: "8n" }); // Snare
-                if (m % 2 === 0) tracks.drums.push({ time: "0:2:2", note: "C2", duration: "16n" }); // Kick ghost
-                
-                // Chords: Jazz ii-V-I-vi (Change every 2 bars)
-                if (m % 2 === 0) {
-                    const prog = [0, 3, 4, 1]; // Indexes
-                    const chordIdx = prog[Math.floor(m/2) % 4];
-                    const chord = getChord(chordIdx, 4); // 7ths
-                    
-                    // Strummed Chord
-                    chord.forEach((n, i) => {
-                        tracks.chords.push({ time: `0:0:${i}`, note: n, duration: "2m" });
-                    });
-                    
-                    // Bass
-                    tracks.bass.push({ time: "0:0", note: Tone.Frequency(chord[0]).transpose(-12).toNote(), duration: "2m" });
-                }
-                
-                // Melody: Noodling
-                if (rng.next() > 0.4) {
-                    const n = rng.pick(scaleNotes);
-                    const beat = rng.range(0, 3);
-                    tracks.melody.push({ time: `0:${beat}:2`, note: Tone.Frequency(n).transpose(12).toNote(), duration: "8n" });
-                }
-            } 
-            
-            // --- AMBIENT LOGIC ---
-            else if (styleName === 'ambient') {
-                // Bass Drone
-                if (m % 4 === 0) {
-                     tracks.bass.push({ time: "0:0", note: Tone.Frequency(scaleNotes[0]).transpose(-24).toNote(), duration: "4m" });
-                }
-                // Random Swells
-                if (rng.next() > 0.6) {
-                    const n = rng.pick(scaleNotes);
-                    tracks.chords.push({ time: `0:${rng.range(0,3)}`, note: n, duration: "4n" });
-                }
-            }
-            // --- OTHER STYLES (Basic Fallback for brevity, can expand) ---
-            else {
-                if (m%2===0) tracks.bass.push({time:"0:0", note: scaleNotes[0], duration:"1m"});
-            }
-
-
-            // Convert local '0:x' times to absolute transport time logic for Parts? 
-            // Actually Tone.Part handles Transport time relative to start. 
-            // But we need to offset each measure.
-            // Better strategy: Add events with "Bar:Beat:Sixteenth" string format.
-        }
-        
-        // Correct approach for Part: generate flat list of {time, note, duration}
-        // Retrying Loop Structure for simple export
-        return { tracks };
-    }
-
-    playScore(score) {
-        // Clear old parts
-        if(this.parts) {
-            this.parts.forEach(p => p.dispose());
-        }
-        this.parts = [];
-
-        // Helper to create part
-        const createPart = (events, instrument) => {
-            if (!instrument || events.length === 0) return;
-            // Tone.Part expects [ { time, note, duration, velocity }, ... ]
-            // We need to bake the 'measure' offset into the time.
-            // Actually, simpler: Use a recursive loop callback that reads from our pre-gen array?
-            // No, Tone.Part is best. We just need to format time as "0:0:0" + measure offset.
-            
-            // Re-generating proper absolute events:
-            // Since my generateScore above was pseudo-codey on time, let's fix it in the helper below.
-        };
-    }
-    
-    // REDOING GENERATE FOR DIRECT TONE.PART COMPATIBILITY
-    generateAndSchedule(seed, parameters) {
          if (!this.isInitialized) return;
          this.stop(); // Clean up
          
@@ -323,8 +199,8 @@ class MusicEngine {
          const style = STYLES[styleName];
          
          // Apply Timbre
-         this.synth.set({ oscillator: { type: style.oscillator }, envelope: style.envelope });
-         this.reverb.set(style.reverb);
+         if (this.synth) this.synth.set({ oscillator: { type: style.oscillator }, envelope: style.envelope });
+         if (this.reverb) this.reverb.set(style.reverb);
 
          // Scale
          const scaleIntervals = SCALES[style.scaleType] || SCALES['dorian'];
@@ -354,8 +230,7 @@ class MusicEngine {
                          chordsArr.push({ time: `${m}:0:${i}`, note: n, duration: "2m" });
                      });
                      // Bass
-                     this.bass.triggerAttackRelease(Tone.Frequency(chord[0]).transpose(-12), "2m", `+${m*2.4}`); // Hacky? No
-                     // Better: Add to bassPart
+                     this.bass.triggerAttackRelease(Tone.Frequency(chord[0]).transpose(-12), "2m", `+${m*2.4 + Tone.Time(`${m}:0:0`).toSeconds()}`); 
                  }
                  
                  // Melody
@@ -378,7 +253,7 @@ class MusicEngine {
              }, melodyArr).start(0));
          }
 
-         // --- AMBIENT/OTHERS (Simplified for Reliability) ---
+         // --- AMBIENT/OTHERS (Simplified) ---
          else {
              const events = [];
              for(let m=0; m<16; m++) {
@@ -391,20 +266,6 @@ class MusicEngine {
          }
 
          this.start();
-    }
-    
-    // Shim for old method
-    generate(s, p) { this.generateAndSchedule(s, p); }
-
-    stop() {
-        Tone.Transport.stop();
-        Tone.Transport.cancel(); // Clears all scheduled events including Parts
-        if (this.parts) {
-            this.parts.forEach(p => p.dispose());
-        }
-        this.parts = [];
-        this.releaseAll();
-        this.isPlaying = false;
     }
 }
 
